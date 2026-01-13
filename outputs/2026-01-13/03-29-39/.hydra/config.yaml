@@ -1,0 +1,122 @@
+benchmark:
+  name: browsecomp-en
+  data:
+    metadata_file: standardized_data.jsonl
+    whitelist: []
+    data_dir: ${data_dir}/browsecomp-test
+    train_val_data_dir: data/browsecomp-train
+    test_data_dir: data/browsecomp-test
+  execution:
+    max_tasks: -1
+    max_concurrent: 1
+    pass_at_k: 1
+  openai_api_key: ${oc.env:OPENAI_API_KEY,???}
+main_agent:
+  prompt_class: MainAgentPrompt_GAIA
+  llm:
+    provider_class: GPT5OpenAIClient
+    model_name: gpt-5
+    async_client: true
+    temperature: 0.7
+    top_p: 0.95
+    min_p: 0.0
+    top_k: -1
+    max_tokens: 4096
+    openai_api_key: ${oc.env:OPENAI_API_KEY,???}
+    openai_base_url: ${oc.env:OPENAI_BASE_URL,https://yibuapi.com/v1}
+    openrouter_provider: ''
+    disable_cache_control: true
+    keep_tool_result: -1
+    oai_tool_thinking: false
+    timeout: 120
+  tool_config:
+  - tool-reasoning
+  max_turns: 50
+  max_tool_calls_per_turn: 10
+  input_process:
+    hint_generation: true
+    hint_llm_base_url: ${oc.env:HINT_LLM_BASE_URL,https://yibuapi.com/v1}
+  output_process:
+    final_answer_extraction: true
+    final_answer_llm_base_url: ${oc.env:FINAL_ANSWER_LLM_BASE_URL,https://yibuapi.com/v1}
+  openai_api_key: ${oc.env:OPENAI_API_KEY,???}
+  add_message_id: true
+  keep_tool_result: -1
+  chinese_context: ${oc.env:CHINESE_CONTEXT,false}
+sub_agents:
+  agent-worker:
+    prompt_class: SubAgentWorkerPrompt
+    llm:
+      provider_class: GPT5OpenAIClient
+      model_name: gpt-5
+      async_client: true
+      temperature: 0.3
+      top_p: 0.95
+      min_p: 0.0
+      top_k: -1
+      max_tokens: 32000
+      openai_api_key: ${oc.env:OPENAI_API_KEY,???}
+      openai_base_url: ${oc.env:OPENAI_BASE_URL,https://yibuapi.com/v1}
+      openrouter_provider: ''
+      disable_cache_control: true
+      keep_tool_result: -1
+      oai_tool_thinking: false
+    tool_config:
+    - tool-searching
+    - tool-image-video
+    - tool-reading
+    - tool-code
+    - tool-audio
+    max_turns: 50
+    max_tool_calls_per_turn: 10
+output_dir: ./logs/textgrad_training_with_memory/${now:%Y-%m-%d_%H-%M-%S}
+data_dir: ${oc.env:DATA_DIR,data}
+train:
+  num_epochs: 2
+  max_total_tasks: 120
+  max_train_tasks_per_epoch: 200
+  max_eval_tasks: 45
+  train_ratio: 0.5
+  batch_size: 20
+  eval_every_n_epochs: 1
+  seed: 42
+  max_concurrent: 8
+  selection_strategy: max_feedback_length
+  run_initial_eval: true
+  max_retries_per_task: 2
+  use_memory: true
+  memory_strategy: loss_bank
+  memory_storage: ./memory_storage
+  memory_max_entries: 100
+  memory_window: 50
+sub_agent:
+  llm:
+    provider_class: GPT5OpenAIClient
+    model_name: gpt-5
+    temperature: 0.7
+    max_tokens: 4096
+    timeout: 120
+evaluator:
+  provider_class: GPT5OpenAIClient
+  model_name: gpt-5
+  temperature: 0.7
+  max_tokens: 8192
+  timeout: 180
+tools:
+  enabled_tools:
+  - websearch
+  - browse
+  - calculator
+  - python
+  websearch:
+    tool_class: WebSearchTool
+    max_results: 5
+  browse:
+    tool_class: BrowseTool
+    timeout: 30
+  calculator:
+    tool_class: CalculatorTool
+  python:
+    tool_class: PythonExecutorTool
+    timeout: 30
+    sandbox: true

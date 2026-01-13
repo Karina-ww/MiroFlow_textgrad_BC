@@ -1,0 +1,26 @@
+#!/bin/bash
+echo "Please grant access to these datasets:"
+echo "- https://huggingface.co/datasets/gaia-benchmark/GAIA"
+echo "- https://huggingface.co/datasets/cais/hle"
+echo
+
+read -p "Have you granted access? [Y/n]: " answer
+answer=${answer:-Y}
+if [[ ! $answer =~ ^[Yy] ]]; then
+    echo "Please grant access to the datasets first"
+    exit 1
+fi
+echo "Access confirmed"
+
+# Comment out any unwanted datasets by adding # at the start of the line
+uv run main.py prepare-benchmark get gaia-val
+uv run main.py prepare-benchmark get gaia-val-text-only
+uv run main.py prepare-benchmark get frames-test
+uv run main.py prepare-benchmark get webwalkerqa
+uv run main.py prepare-benchmark get browsecomp-test
+uv run main.py prepare-benchmark get browsecomp-zh-test
+uv run main.py prepare-benchmark get hle
+uv run main.py prepare-benchmark get hle-text-only
+uv run main.py prepare-benchmark get xbench-ds
+uv run main.py prepare-benchmark get futurex
+uv run main.py prepare-benchmark get finsearchcomp

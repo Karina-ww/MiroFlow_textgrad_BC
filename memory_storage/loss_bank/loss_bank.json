@@ -1,0 +1,198 @@
+{
+  "agent_feedbacks": {
+    "main_agent": [
+      {
+        "id": "59987c35e780",
+        "timestamp": "2026-01-13T03:53:19.063158",
+        "agent_name": "main_agent",
+        "feedback_text": "The task was not understood or orchestrated correctly. Reasoning drifted to unrelated London/Peckham topics and selected an irrelevant sub-agent output. Integration failed; the final answer contradicts the earlier conclusion and does not address the actual composer-poet clue chain. \n        Fix Guidance: \n        - Improve problem parsing and entity extraction to stay within the asked domain.\n        - Decompose clues into targeted sub-queries and enforce alignment checks before synthesis.\n        - Implement a final consistency gate to ensure the concluding answer matches the reasoning and the question scope.\n        - Prefer evidence-based validation (source triangulation) tied directly to the queried entities.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "9",
+          "predicted": "John Duke",
+          "gold_answer": "Joseph Willcox Jenkins"
+        }
+      },
+      {
+        "id": "7f09fce3ae61",
+        "timestamp": "2026-01-13T03:54:30.160936",
+        "agent_name": "main_agent",
+        "feedback_text": "This is a recurring orchestration/grounding issue consistent with prior runs; the trend appears stable. Add guardrails: 1‑line task restatement, explicit criteria for selecting sub‑agent/tool outputs tied to the question, a relevance score gate for tool paths, and a final answer–analysis consistency check with a brief evidence list.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "7",
+          "predicted": "Mysuru, patriarchy",
+          "gold_answer": "Jodhpur, and the sociological concept is 'rape culture'."
+        }
+      },
+      {
+        "id": "9875cbb2cab3",
+        "timestamp": "2026-01-13T03:55:58.896288",
+        "agent_name": "main_agent",
+        "feedback_text": "This is a recurring grounding/orchestration issue: selecting from borough-level lists without verifying district-specific linkage. Add guardrails: 1-line task restatement; enforce a rule that any final pick must be supported by a direct, cited passage tied to Peckham; run an ambiguity check comparing all candidates and, if only borough-level evidence is found, return “insufficient district-specific evidence” or seek clarification.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "5",
+          "predicted": "India",
+          "gold_answer": "Pakistan"
+        }
+      },
+      {
+        "id": "c3ef3cdcc69a",
+        "timestamp": "2026-01-13T04:13:10.679518",
+        "agent_name": "main_agent",
+        "feedback_text": "Recurring: aligns with the stable orchestration/grounding failures seen in prior runs. Add guardrails: start with a 1-line task frame; extract and lock query facets (entity granularity, thematic focus, required linkage); score sub-agent outputs against must-satisfy checks; and add an entity-type sanity/consistency gate that blocks any final answer that conflicts with the analysis or lacks explicit evidence.",
+        "iteration": 0,
+        "epoch": 1,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 1,
+          "task_id": "5",
+          "predicted": "Bangladesh",
+          "gold_answer": "Pakistan"
+        }
+      },
+      {
+        "id": "d5f5033505b6",
+        "timestamp": "2026-01-13T04:14:37.074536",
+        "agent_name": "main_agent",
+        "feedback_text": "Recurring: this aligns with the stable orchestration/grounding pattern seen in prior runs. Add guardrails: start with a 1‑line task frame; extract and lock query facets (entity granularity, geography/time, required format); apply a selection rubric plus a validation checklist that cross‑checks sub‑agent outputs against the question components/linkage rules, and only emit a single final answer after passing the checks.",
+        "iteration": 0,
+        "epoch": 1,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 1,
+          "task_id": "7",
+          "predicted": "Mysuru, anomie",
+          "gold_answer": "Jodhpur, and the sociological concept is 'rape culture'."
+        }
+      },
+      {
+        "id": "4ad603dde0a9",
+        "timestamp": "2026-01-13T04:15:42.773418",
+        "agent_name": "main_agent",
+        "feedback_text": "This is a recurring grounding/orchestration failure consistent with the stable pattern seen in prior runs. Add guardrails: begin with a 1-line task frame, extract and lock query facets, use a constraint checklist/table to mark pass/fail per candidate, discard any that miss a facet, insert a mid-run criteria-match check, and only synthesize once a fully verified, cited candidate meets all locked criteria.",
+        "iteration": 0,
+        "epoch": 1,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 1,
+          "task_id": "9",
+          "predicted": "John Duke",
+          "gold_answer": "Joseph Willcox Jenkins"
+        }
+      }
+    ],
+    "agent-worker": [
+      {
+        "id": "fc39132abae3",
+        "timestamp": "2026-01-13T03:53:19.063240",
+        "agent_name": "agent-worker",
+        "feedback_text": "The sub-agent conducted thorough but entirely irrelevant research (South London “Little Lagos,” planning documents) that did not pertain to the composer/poet question. Information accuracy may be fine for its topic, but it was misaligned with the task.\n        Fix Guidance:\n        - Align search strategy with the exact question cues; anchor queries on the composer-poet relationship and timeframes.\n        - Use key entity filters (modern American composer; Irish poet critical of the US; early 19th-century visit; British publishing house connection) to guide retrieval.\n        - Provide concise, directly relevant evidence and avoid domain drift; escalate misalignment to the main agent rather than proceeding off-topic.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "9",
+          "predicted": "John Duke",
+          "gold_answer": "Joseph Willcox Jenkins"
+        }
+      },
+      {
+        "id": "db3b734ddfc5",
+        "timestamp": "2026-01-13T03:54:30.160972",
+        "agent_name": "agent-worker",
+        "feedback_text": "This mirrors the recurring pattern: engaging in deep but tangential inquiry; the trend appears stable. To prevent it, start with a brief (problem restatement, explicit acceptance criteria, in/out-of-scope), apply a relevance gate tying each source to a criterion, conduct a mid-research alignment check, and pause to seek clarification when alignment is uncertain.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "7",
+          "predicted": "Mysuru, patriarchy",
+          "gold_answer": "Jodhpur, and the sociological concept is 'rape culture'."
+        }
+      },
+      {
+        "id": "61131d6b38c8",
+        "timestamp": "2026-01-13T03:55:58.896383",
+        "agent_name": "agent-worker",
+        "feedback_text": "This issue is recurring and stable: the worker dives into thorough but tangential research that drifts from the stated question. To counter this, begin with a one‑sentence problem restatement plus explicit acceptance criteria and an in/out‑of‑scope checklist; time‑box exploration and perform a quick “relevance check” after each source, pausing to ask the main agent a clarifying question if relevance is uncertain. Deliver a minimal, directly responsive answer first, adding deeper context only after confirmation.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "5",
+          "predicted": "India",
+          "gold_answer": "Pakistan"
+        }
+      },
+      {
+        "id": "7ca82d68d0c9",
+        "timestamp": "2026-01-13T04:13:10.679590",
+        "agent_name": "agent-worker",
+        "feedback_text": "Recurring pattern: aligns with your stable history of deep but tangential research. \nTo break it, use a pre‑flight checklist (1‑sentence problem restatement, explicit acceptance criteria, in/out‑of‑scope) and an evidence‑first workflow: pull 1–2 authoritative sources, extract the minimal answer, then expand only if needed. \nAfter any tool error, pause to re‑ground in the task and re‑run/switch tools—do not proceed from memory.",
+        "iteration": 0,
+        "epoch": 1,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 1,
+          "task_id": "5",
+          "predicted": "Bangladesh",
+          "gold_answer": "Pakistan"
+        }
+      },
+      {
+        "id": "1ac1ff1df88b",
+        "timestamp": "2026-01-13T04:14:37.074568",
+        "agent_name": "agent-worker",
+        "feedback_text": "Recurring error: this aligns with your stable pattern of drifting into deep but tangential research. Implement a pre‑flight checklist (1‑sentence problem restatement, explicit acceptance criteria, in/out‑of‑scope) and a tool‑failure recovery protocol: pause, reassess, choose an alternative path or ask for guidance. Add a relevance gate and timebox—confirm each thread directly advances the required city/concept, deliver a minimal answer first, then expand.",
+        "iteration": 0,
+        "epoch": 1,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 1,
+          "task_id": "7",
+          "predicted": "Mysuru, anomie",
+          "gold_answer": "Jodhpur, and the sociological concept is 'rape culture'."
+        }
+      },
+      {
+        "id": "59de49475722",
+        "timestamp": "2026-01-13T04:15:42.773461",
+        "agent_name": "agent-worker",
+        "feedback_text": "This is a recurring error consistent with your stable pattern of drifting into tangential research. Implement a pre‑flight checklist: 1‑sentence problem restatement, explicit acceptance criteria, in/out‑of‑scope, and domain/source‑relevance checks before proceeding. Add stop rules: after one failed tool attempt or detected domain mismatch, pause, summarize status and uncertainty, and escalate with a proposed next step.",
+        "iteration": 0,
+        "epoch": 1,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 1,
+          "task_id": "9",
+          "predicted": "John Duke",
+          "gold_answer": "Joseph Willcox Jenkins"
+        }
+      }
+    ]
+  },
+  "stats": {
+    "total_stored": 12,
+    "by_agent": {
+      "main_agent": 6,
+      "agent-worker": 6
+    },
+    "by_iteration": {
+      "0": 12
+    }
+  }
+}

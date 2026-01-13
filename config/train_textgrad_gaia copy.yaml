@@ -1,0 +1,124 @@
+# MiroFlow TextGrad Training Configuration
+# Extends agent_gaia-validation-gpt5.yaml for training mode
+
+defaults:
+  - agent_gaia-validation-gpt5  # Inherit from base config
+  - _self_  # Override with this file's settings
+
+# Training-specific settings
+train:
+  num_epochs: 2
+  
+  # Dataset split settings (from gaia-val: 165 total)
+  train_size: 100 
+  val_size: 65  
+  max_train_tasks_per_epoch: 100  
+  
+  batch_size: 16  
+  seed: 42
+  max_concurrent: 16  
+  selection_strategy: "max_feedback_length"  
+
+  run_initial_eval: true 
+  generate_test_predictions: true  
+  
+  use_memory: True 
+  memory_strategy: "hybrid" 
+  memory_storage: "./hybrid_memory_storage"  
+  memory_max_entries: 100  
+  memory_window: 50  
+  max_retries_per_task: 2  
+
+
+output_dir: "./TotalLogs/total_textgrad/${now:%Y-%m-%d_%H-%M-%S}"
+
+# Benchmark settings (inherit from gaia-validation)
+benchmark:
+  name: "gaia-validation"
+  data:
+    # Data directories
+    train_val_data_dir: "data/gaia-val"  # Has GT, split into train(100) + val(65)
+    test_data_dir: "data/gaia-test"  # No GT, for final submission only
+    data_dir: "data/gaia-val"  # Keep for backward compatibility
+    metadata_file: "standardized_data.jsonl"
+    whitelist: []  # Empty = use all tasks
+  execution:
+    max_tasks: -1  # Will be limited by train.max_total_tasks
+    max_concurrent: 1  # Sequential execution during training
+    pass_at_k: 1
+  openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
+
+# Main agent settings (for training)
+main_agent:
+  prompt_class: MainAgentPrompt_GAIA
+  llm:
+    provider_class: "GPT5OpenAIClient"
+    model_name: "gpt-5"
+    async_client: true
+    temperature: 1.0
+    max_tokens: 32768
+    reasoning_effort: "high"
+    openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
+    openai_base_url: "${oc.env:OPENAI_BASE_URL,https://yibuapi.com/v1}"
+    disable_cache_control: true
+    oai_tool_thinking: false
+  
+  tool_config:
+    - tool-reasoning
+  
+  max_turns: 15  # Limit turns during training for efficiency
+  max_tool_calls_per_turn: 10
+  
+  input_process:
+    hint_generation: false  # Disable hint generation during training
+  output_process:
+    final_answer_extraction: true
+    final_answer_llm_base_url: "${oc.env:FINAL_ANSWER_LLM_BASE_URL,https://yibuapi.com/v1}"
+  
+  add_message_id: true
+  keep_tool_result: -1
+  chinese_context: "${oc.env:CHINESE_CONTEXT,false}"
+
+# Sub agent settings
+sub_agents:
+  agent-worker:
+    prompt_class: SubAgentWorkerPrompt
+    llm:
+      provider_class: "GPT5OpenAIClient"
+      model_name: "gpt-5"
+      async_client: true
+      temperature: 1.0
+      max_tokens: 32768
+      reasoning_effort: "high"
+      openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
+      openai_base_url: "${oc.env:OPENAI_BASE_URL,https://yibuapi.com/v1}"
+      disable_cache_control: true
+    
+    tool_config:
+      - tool-searching
+      - tool-image-video
+      - tool-reading
+      - tool-code
+      - tool-audio
+
+    
+    max_turns: 10  # Limit sub-agent turns
+    max_tool_calls_per_turn: 10
+
+# TextGrad-specific settings
+textgrad:
+  learning_rate: 1.0  # TGD uses this indirectly
+  gradient_memory: 2
+  optimizer_constraints:
+    - "Keep prompts clear, concise, and actionable"
+    - "Do not change the fundamental role of each agent"
+    - "Maintain consistency in prompt structure and format"
+    - "Focus on high-level reasoning patterns, not case-specific details"
+  
+  # Memory mechanism (optional, set to null to disable)
+  memory:
+    enabled: false  # Disable memory for initial training
+    strategy: null  # Options: loss_bank, episodic, hybrid
+    storage_path: "./logs/textgrad_training/memory_storage"
+    max_entries_per_agent: 100
+    window_size: 50
