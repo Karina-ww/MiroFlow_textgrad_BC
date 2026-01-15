@@ -207,7 +207,7 @@ class BenchmarkEvaluator(ABC):
                             response,
                             final_boxed_answer,
                             log_file_path,
-                        ) = await execute_task_pipeline(
+                        ) = await execute_task_pipeline( ### WWW: Main 入口
                             cfg=self.cfg,
                             task_id=f"{task.task_id}",
                             task_name=f"{task.task_id}",

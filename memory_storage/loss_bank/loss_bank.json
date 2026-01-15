@@ -90,6 +90,96 @@
           "predicted": "John Duke",
           "gold_answer": "Joseph Willcox Jenkins"
         }
+      },
+      {
+        "id": "6de6f78b5978",
+        "timestamp": "2026-01-15T03:48:49.962128",
+        "agent_name": "main_agent",
+        "feedback_text": "Recurring: aligns with the stable grounding/orchestration pattern seen before. Add guardrails: start with a 1‑line task frame; extract/lock facets (entities, geography, timeframe, causal link); run a constrained retrieval plan that verifies each claim with ≥2 independent sources and inline citations before synthesis, and use uncertainty language when evidence is thin. Maintain a verification checklist mapping each claim to sources and include a quick “triangulate location/project metadata” step to prevent misattribution.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "train-7",
+          "predicted": "Pune, anomie",
+          "gold_answer": "Jodhpur, and the sociological concept is 'rape culture'."
+        }
+      },
+      {
+        "id": "5582ea547cc7",
+        "timestamp": "2026-01-15T03:49:20.809689",
+        "agent_name": "main_agent",
+        "feedback_text": "Recurring per the stable grounding/orchestration pattern seen in prior runs. Add guardrails: begin with a 1-line task frame, extract and lock query facets (entities, geography, timeframe, causal link), execute a constrained plan against those facets, and run a mid-course drift check plus a final reasoning→answer consistency check; require a one-sentence “why this answers the query” tied to the locked facets before output.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "train-1",
+          "predicted": "Bank for International Settlements",
+          "gold_answer": "Bank for International Settlements (BIS)"
+        }
+      },
+      {
+        "id": "bbf4c75f7fdb",
+        "timestamp": "2026-01-15T03:50:09.585942",
+        "agent_name": "main_agent",
+        "feedback_text": "Recurring: matches the stable grounding/orchestration failure pattern seen in prior runs. Add a facet-lock schema (entities/geography/timeframe/causal link) with mandatory source-anchored citations per facet and a retrieval quorum; auto-fail if any facet lacks evidence. Gate the answer through a preflight that verifies South London + urban regeneration coverage, filters out out-of-scope theory keywords, and enforces a single structured output template to prevent contradictory conclusions.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "train-5",
+          "predicted": "India",
+          "gold_answer": "Pakistan"
+        }
+      },
+      {
+        "id": "eda70fc454e0",
+        "timestamp": "2026-01-15T13:49:04.818038",
+        "agent_name": "main_agent",
+        "feedback_text": "Recurring: aligns with the stable grounding/orchestration failure pattern seen in prior runs. Add guardrails: start with a 1‑line task frame, lock facets (entities/geography/timeframe/causal link), require source‑anchored citations and two independent sources per claim before synthesis, and instrument the loop with drift checks and an evidence scoreboard that blocks conclusions until all facets are satisfied. If a facet lacks sources, auto‑route to a retrieve/verify subtask instead of inferring.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "train-7",
+          "predicted": "Pune, anomie",
+          "gold_answer": "Jodhpur, and the sociological concept is 'rape culture'."
+        }
+      },
+      {
+        "id": "edda6c537485",
+        "timestamp": "2026-01-15T13:49:57.297820",
+        "agent_name": "main_agent",
+        "feedback_text": "Recurring: this matches the stable grounding/orchestration failure seen in prior runs. Enforce a pre-answer facet-lock (entities/geography/timeframe/causal link) with a 1-line task frame and a domain-sanity gate that blocks output when facets point to finance/IR history rather than geography; add an integration checklist that lists sub-agent cues used/rejected. Require 1–2 source‑anchored facts tied to the locked facets before finalizing.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "train-1",
+          "predicted": "Bank for International Settlements",
+          "gold_answer": "Bank for International Settlements (BIS)"
+        }
+      },
+      {
+        "id": "cf322538393b",
+        "timestamp": "2026-01-15T13:50:32.376510",
+        "agent_name": "main_agent",
+        "feedback_text": "Recurring: aligns with the stable grounding/orchestration failure pattern in the history. Add guardrails: enforce a pre-answer facet-lock (entities/geography/timeframe/causal link), begin with a 1-line task frame plus a domain/intent check, and verify single-entity constraints to block off-topic content. Require source-anchored citations with an evidence checklist and a brief synthesis step that consolidates sub-agent outputs before finalizing.",
+        "iteration": 0,
+        "epoch": 0,
+        "metadata": {
+          "iteration": 1,
+          "epoch": 0,
+          "task_id": "train-5",
+          "predicted": "India",
+          "gold_answer": "Pakistan"
+        }
       }
     ],
     "agent-worker": [
@@ -186,9 +276,9 @@
     ]
   },
   "stats": {
-    "total_stored": 12,
+    "total_stored": 18,
     "by_agent": {
-      "main_agent": 6,
+      "main_agent": 12,
       "agent-worker": 6
     },
     "by_iteration": {

@@ -17,7 +17,7 @@ train:
   seed: 42
   max_concurrent: 8
   selection_strategy: "max_feedback_length"
-  run_initial_eval: true #WWW: 刚开始train
+  run_initial_eval: false #WWW: 刚开始train
   max_retries_per_task: 2
   
   # ========================================
@@ -30,14 +30,14 @@ train:
   memory_window: 50  # Rolling window size for loss_bank
 
 # Output directory
-output_dir: "./logs/textgrad_training_with_memory/${now:%Y-%m-%d_%H-%M-%S}"
+output_dir: "./logs/textgrad_training_with_memory/checkForprompt"
 
 # Benchmark settings
 benchmark:
   name: "browsecomp-en"
   data:
     train_data_dir: "data/browsecomp-train"
-    test_data_dir: "data/browsecomp-test"
+    test_data_dir: "data/browsecomp-test-sub"
     metadata_file: "standardized_data.jsonl"
     whitelist: []
     train_size: 8

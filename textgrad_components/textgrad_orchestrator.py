@@ -164,6 +164,7 @@ class TextGradOrchestrator:
         sub_prompt_vars = self.prompt_manager.get_sub_agent_prompt_variables()
         
         # Create standard Orchestrator with current prompt values
+        # IMPORTANT: Pass prompt_manager so Orchestrator can use optimized prompts
         orchestrator = Orchestrator(
             main_agent_tool_manager=self.main_agent_tool_manager,
             sub_agent_tool_managers=self.sub_agent_tool_managers,
@@ -171,7 +172,8 @@ class TextGradOrchestrator:
             sub_agent_llm_client=self.sub_llm_client,
             output_formatter=self.output_formatter,
             cfg=self.cfg,
-            task_log=task_log
+            task_log=task_log,
+            prompt_manager=self.prompt_manager  # Pass PromptVariableManager for optimized prompts
         )
         
         try:

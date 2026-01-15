@@ -9,10 +9,10 @@ export LOGGER_LEVEL="INFO"
 export CHINESE_CONTEXT="false"
 
 # Training configuration
-CONFIG_NAME="train_textgrad_browsecomp_with_memory"
+CONFIG_NAME="train_textgrad_browsecomp_with_memory_claude4"
 NUM_EPOCHS=1
 MAX_TRAIN_TASKS=200
-BATCH_SIZE=20
+BATCH_SIZE=8
 
 echo "========================================"
 echo "MiroFlow TextGrad Training"

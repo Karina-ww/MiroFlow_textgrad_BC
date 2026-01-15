@@ -867,6 +867,7 @@ async def train_epoch(
                     
                     # Step 6: Apply optimizer step (no backward, only use injected gradients)
                     optimizer.step()
+                    optimizer.zero_grad() ### TODO: WWW 验证是否需要
                     
                     # Record backward end time
                     backward_duration = 0
@@ -1440,6 +1441,31 @@ async def main_training_loop(cfg: DictConfig):
     # Training loop
     best_accuracy = 0.0
     best_prompts = {param.role_description: param.get_value() for param in trainable_params}
+    
+    # Initialize prompts with actual tool definitions ONCE before training
+    # CRITICAL: Do this BEFORE any training, and do NOT repeat in every epoch
+    # After optimizer.step() updates prompts, they should NOT be regenerated
+    print(f"\n{'='*60}")
+    print("Initializing prompts with actual tool definitions")
+    print(f"{'='*60}")
+    from src.core.orchestrator import _list_tools
+    tool_definitions_main = await main_agent_tool_manager.get_all_tool_definitions()
+    if cfg.sub_agents is not None and cfg.sub_agents:
+        from src.utils.tool_utils import expose_sub_agents_as_tools
+        tool_definitions_main = expose_sub_agents_as_tools(cfg.sub_agents)
+    _list_sub_agent_tools = _list_tools(sub_agent_tool_managers)
+    tool_definitions_sub = await _list_sub_agent_tools()
+    sub_agent_name = 'agent-worker'
+    tool_definitions_sub = tool_definitions_sub.get(sub_agent_name, []) 
+    chinese_context = cfg.main_agent.get("chinese_context", "false").lower() == "true"
+    prompt_manager.initialize_prompts_with_tools(
+        tool_definitions_main=tool_definitions_main,
+        tool_definitions_sub=tool_definitions_sub,
+        chinese_context=chinese_context
+    )
+    print(f"✅ Initialized prompts with main_agent:{tool_definitions_main} tool definitions and sub_agents:{tool_definitions_sub} tool definitions")
+    print(f"   These prompts will be optimized by TextGrad and should NOT be regenerated")
+    print(f"{'='*60}\n")
     
     # Get max_concurrent from config (default: 2)
     max_concurrent = cfg.train.get("max_concurrent", 2)

@@ -87,6 +87,7 @@ class Orchestrator:
         cfg: DictConfig,
         task_log: TaskTracer,
         sub_agent_llm_client: Optional[LLMProviderClientBase] = None,
+        prompt_manager = None,  # Optional PromptVariableManager for TextGrad
     ):
         self.main_agent_tool_manager = main_agent_tool_manager
         self.sub_agent_tool_managers = sub_agent_tool_managers
@@ -97,6 +98,7 @@ class Orchestrator:
         self.output_formatter = output_formatter
         self.cfg = cfg
         self.task_log = task_log
+        self.prompt_manager = prompt_manager  # Store prompt manager for optimized prompts
         # call this once, then use cache value
         self._list_sub_agent_tools = _list_tools(sub_agent_tool_managers)
 
@@ -418,13 +420,37 @@ class Orchestrator:
         # Generate sub-agent system prompt
         if not self.cfg.sub_agents or sub_agent_name not in self.cfg.sub_agents:
             raise ValueError(f"Sub-agent {sub_agent_name} not found in configuration")
+        
         sub_agent_prompt_instance = _load_agent_prompt_class(
             self.cfg.sub_agents[sub_agent_name].prompt_class
         )
-        system_prompt = sub_agent_prompt_instance.generate_system_prompt_with_mcp_tools(
-            mcp_servers=tool_definitions,
-            chinese_context=self.chinese_context,
-        )
+        
+        # Check if we have optimized prompt from TextGrad
+        if self.prompt_manager is not None:
+            try:
+                # Use PromptVariableManager to regenerate prompt with current tools
+                system_prompt = self.prompt_manager.regenerate_prompt_with_tools(
+                    agent_name=sub_agent_name,
+                    tool_definitions=tool_definitions,
+                    chinese_context=self.chinese_context
+                )
+                logger.info(f"✅ Using {sub_agent_name} prompt from TextGrad PromptVariableManager with current tools")
+                print("==============sub agent system prompt begin================")
+                print(system_prompt)
+                print("==============sub agent system prompt end==================")
+            except ValueError:
+                # Sub-agent not in prompt manager, use default
+                logger.warning(f"⚠️  {sub_agent_name} not found in PromptVariableManager, using default prompt")
+                system_prompt = sub_agent_prompt_instance.generate_system_prompt_with_mcp_tools(
+                    mcp_servers=tool_definitions,
+                    chinese_context=self.chinese_context,
+                )
+        else:
+            # Fallback: Generate prompt with tools (non-TextGrad mode)
+            system_prompt = sub_agent_prompt_instance.generate_system_prompt_with_mcp_tools(
+                mcp_servers=tool_definitions,
+                chinese_context=self.chinese_context,
+            )
 
         # Limit sub-agent turns
         max_turns = self.cfg.sub_agents[sub_agent_name].max_turns
@@ -794,12 +820,26 @@ Your objective is maximum completeness, transparency, and detailed documentation
         main_agent_prompt_instance = _load_agent_prompt_class(
             self.cfg.main_agent.prompt_class
         )
-        system_prompt = (
-            main_agent_prompt_instance.generate_system_prompt_with_mcp_tools(
+        
+        # Check if we have optimized prompt from TextGrad
+        if self.prompt_manager is not None:
+            # Use PromptVariableManager to regenerate prompt with current tools
+            # This ensures we use the optimized base prompt but with current tool definitions
+            system_prompt = self.prompt_manager.regenerate_prompt_with_tools(
+                agent_name="main_agent",
+                tool_definitions=tool_definitions,
+                chinese_context=self.chinese_context
+            )
+            logger.info(f"✅ Using prompt from TextGrad PromptVariableManager with current tools")
+            print("============main agent system prompt begin===============")
+            print(system_prompt)
+            print("============main agent system prompt end===============")
+        else:
+            # Fallback: Generate prompt with tools (non-TextGrad mode)
+            system_prompt = main_agent_prompt_instance.generate_system_prompt_with_mcp_tools(
                 mcp_servers=tool_definitions,
                 chinese_context=self.chinese_context,
             )
-        )
 
         # 4. Main loop: LLM <-> Tools
         max_turns = self.cfg.main_agent.max_turns

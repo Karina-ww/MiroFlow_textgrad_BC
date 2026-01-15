@@ -45,12 +45,16 @@ class PromptVariableManager:
                 prompt_instance = self._load_prompt_class(agent_cfg.prompt_class)
                 self.sub_agent_prompt_instances[agent_name] = prompt_instance
         
-        # Generate initial prompt texts (with dummy tool definitions for now)
+        # Generate initial prompt texts (with actual tool definitions)
+        # IMPORTANT: Initialize with complete prompts including tools, not empty templates
+        # These will be optimized by TextGrad, and we should NOT regenerate them later
         chinese_context = cfg.main_agent.get("chinese_context", "false").lower() == "true"
         
+        # We need to initialize with actual tools - this will be done in training script
+        # For now, initialize with empty tools as placeholder
         # Main agent prompt
         main_prompt_text = self.main_agent_prompt_instance.generate_system_prompt_with_mcp_tools(
-            mcp_servers=[],  # Empty for initial template, will be filled at runtime
+            mcp_servers=[],  # Will be updated before training starts
             chinese_context=chinese_context
         )
         
@@ -128,5 +132,60 @@ class PromptVariableManager:
         elif agent_name in self.sub_agent_prompt_vars:
             self.sub_agent_prompt_vars[agent_name].set_value(new_prompt)
             logger.info(f"Updated {agent_name} prompt")
+        else:
+            raise ValueError(f"Unknown agent name: {agent_name}")
+    
+    def initialize_prompts_with_tools(self, tool_definitions_main: List[Any], tool_definitions_sub: List[Any], chinese_context: bool):
+        """
+        Initialize prompt variables with actual tool definitions.
+        
+        CRITICAL: Call this ONCE before training starts, NOT in every iteration!
+        This replaces the placeholder prompts with complete prompts including tools.
+        After optimizer.step() updates these, they should NOT be regenerated.
+        
+        Args:
+            tool_definitions: Actual tool definitions (mcp_servers) for all agents
+            chinese_context: Whether to use Chinese context
+        """
+        # Update main agent prompt with actual tools
+        main_prompt_with_tools = self.main_agent_prompt_instance.generate_system_prompt_with_mcp_tools(
+            mcp_servers=tool_definitions_main,
+            chinese_context=chinese_context
+        )
+        self.main_agent_prompt_var.set_value(main_prompt_with_tools)
+        logger.info(f"Initialized main agent prompt with {len(tool_definitions_main)} tool definitions ({len(main_prompt_with_tools)} chars)")
+        
+        # Update sub-agent prompts with actual tools
+        for agent_name, prompt_instance in self.sub_agent_prompt_instances.items():
+            sub_prompt_with_tools = prompt_instance.generate_system_prompt_with_mcp_tools(
+                mcp_servers=tool_definitions_sub,
+                chinese_context=chinese_context
+            )
+            self.sub_agent_prompt_vars[agent_name].set_value(sub_prompt_with_tools)
+            logger.info(f"Initialized {agent_name} prompt with {len(tool_definitions_sub)} tool definitions ({len(sub_prompt_with_tools)} chars)")
+    
+    def regenerate_prompt_with_tools(self, agent_name: str, tool_definitions: List[Any], chinese_context: bool) -> str:
+        """
+        Get current prompt value for runtime use.
+        
+        IMPORTANT: This simply returns the current tg.Variable value, which may be:
+        1. Initial prompt with tools (before training)
+        2. Optimized prompt (after optimizer.step())
+        
+        DO NOT regenerate from template - that would lose optimizations!
+        
+        Args:
+            agent_name: Name of the agent ("main_agent" or sub-agent name)
+            tool_definitions: Not used, kept for API compatibility
+            chinese_context: Not used, kept for API compatibility
+        
+        Returns:
+            Current prompt value (initial or optimized)
+        """
+        # Simply return current value from tg.Variable
+        if agent_name == "main_agent":
+            return self.main_agent_prompt_var.get_value()
+        elif agent_name in self.sub_agent_prompt_vars:
+            return self.sub_agent_prompt_vars[agent_name].get_value()
         else:
             raise ValueError(f"Unknown agent name: {agent_name}")
