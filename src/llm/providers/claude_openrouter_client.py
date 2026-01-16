@@ -18,6 +18,7 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
+from local_api_logger import log_completion
 
 from src.llm.provider_client_base import LLMProviderClientBase
 
@@ -210,9 +211,30 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
     async def _create_completion(self, params: Dict[str, Any], is_async: bool):
         """Helper to create a completion, handling async and sync calls."""
         if is_async:
-            return await self.client.chat.completions.create(**params)
+            response =  await self.client.chat.completions.create(**params)
         else:
-            return self.client.chat.completions.create(**params)
+            response = self.client.chat.completions.create(**params)
+        
+        ### WWW: add log for token compute cost ###
+        response_dict = response.model_dump()
+
+        log_completion(
+        model=self.model_name,
+        request_data={},
+        response_data=response_dict,  
+        user="tEst"
+        )
+        
+        # Record token usage if token_counter is provided
+        if hasattr(self, 'token_counter') and self.token_counter and "usage" in response_dict:
+            usage = response_dict["usage"]
+            self.token_counter.record(
+                prompt_tokens=usage.get("prompt_tokens", 0),
+                completion_tokens=usage.get("completion_tokens", 0),
+                call_type="api_call"
+            )
+        ### end ###    
+        return response  
 
     def _clean_user_content_from_response(self, text: str) -> str:
         """Remove content between \\n\\nUser: and <use_mcp_tool> in assistant response (if no <use_mcp_tool>, remove to end)"""
